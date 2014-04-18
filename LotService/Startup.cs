@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Owin;
+using WebApiContrib.Formatting;
 
 namespace LotService
 {
@@ -21,7 +22,7 @@ namespace LotService
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
-
+            config.Formatters.Add(new ProtoBufFormatter());
             appBuilder.UseWebApi(config);
         }
     }

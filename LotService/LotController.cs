@@ -13,7 +13,9 @@ namespace LotService
         //Lot/{id}
         public IEnumerable<Lot> GetLotsById()
         {
+          
             var lots = Enumerable.Range(1, 1000).Select(i => new Lot {LotId = i});
+           
             return lots;
         }
     }
