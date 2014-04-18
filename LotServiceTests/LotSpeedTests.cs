@@ -22,31 +22,45 @@ namespace LotServiceTests
         [Test]
         public async void Get1000LotsByJson()
         {
-            // Start OWIN host 
-            using (WebApp.Start<Startup>(url: baseAddress))
-            {
-                // Create HttpCient and make a request to api/values 
-                var client = new HttpClient();
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                await Get1000Lots(client);
-            }
+            await GetPortfolioLots(1, false);
         }
 
         [Test]
         public async void Get1000Lots100TimesByJson()
         {
+            await GetPortfolioLots(100, false);
+        }
 
+        [Test]
+        public async void Get1000LotsByProtobuf()
+        {
+
+            await GetPortfolioLots(1, true);
+        }
+
+        [Test]
+        public async void Get1000Lots100TimesByProtobuf()
+        {
+
+            await GetPortfolioLots(100, true);
+        }
+
+        private static async Task GetPortfolioLots(int numberOfTimesToRepeat, bool useProtoBuf)
+        {
             // Start OWIN host 
             using (WebApp.Start<Startup>(url: baseAddress))
             {
                 // Create HttpCient and make a request to api/values 
                 var client = new HttpClient();
                 client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                for (int i = 0; i < 100; i++)
+                if(useProtoBuf)
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/x-protobuf"));
+                else
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                for (int i = 0; i < numberOfTimesToRepeat; i++)
                 {
-                    await Get1000Lots(client);
+                    await Get1000Lots(client,useProtoBuf);
                 }
             }
         }
@@ -67,91 +81,60 @@ namespace LotServiceTests
             Assert.That(lots.ToList().Count, Is.EqualTo(1000));
         }
 
-
-        private static async Task Get1Lot(HttpClient client, bool useProtoBuf = false)
+        private static async Task Get1Lot(int numberOfTimesToRepeat, bool useProtoBuf = false)
         {
-            var start = DateTime.Now;
-            var response = client.GetAsync(baseAddress + "lot/1").Result;
-            
-            var formatters = new List<System.Net.Http.Formatting.MediaTypeFormatter>();
-            if (useProtoBuf)
-                formatters.Add(new ProtoBufFormatter());
-            else
-                formatters.Add(new System.Net.Http.Formatting.JsonMediaTypeFormatter());
-
-            Lot lot = await response.Content.ReadAsAsync<Lot>(formatters);
-            Console.WriteLine(String.Format("time to get lot: {0}", (DateTime.Now - start).TotalMilliseconds));
-            Assert.That(lot.LotId, Is.EqualTo(1));
-        }
-
-        [Test]
-        public async void Get1000LotsByProtobuf()
-        {
-
             // Start OWIN host 
             using (WebApp.Start<Startup>(url: baseAddress))
             {
                 // Create HttpCient and make a request to api/values 
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/x-protobuf"));
-
-                await Get1000Lots(client, true);
-            }
-        }
-
-        [Test]
-        public async void Get1000Lots100TimesByProtobuf()
-        {
-
-            // Start OWIN host 
-            using (WebApp.Start<Startup>(url: baseAddress))
-            {
-                // Create HttpCient and make a request to api/values 
-                HttpClient client = new HttpClient();
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/x-protobuf"));
-                for (var i = 0; i < 100; i++)
+                if (useProtoBuf)
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/x-protobuf"));
+                else
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                for (var i = 0; i < numberOfTimesToRepeat; i++)
                 {
-                    await Get1000Lots(client, true);
+                    var start = DateTime.Now;
+                    var response = client.GetAsync(baseAddress + "lot/1").Result;
+
+                    var formatters = new List<System.Net.Http.Formatting.MediaTypeFormatter>();
+                    if (useProtoBuf)
+                        formatters.Add(new ProtoBufFormatter());
+                    else
+                        formatters.Add(new System.Net.Http.Formatting.JsonMediaTypeFormatter());
+
+                    Lot lot = await response.Content.ReadAsAsync<Lot>(formatters);
+                    Console.WriteLine(String.Format("time to get lot: {0}", (DateTime.Now - start).TotalMilliseconds));
+                    Assert.That(lot.LotId, Is.EqualTo(1));
                 }
 
             }
+
+        }
+
+        [Test]
+        public async void Get1LotByJson()
+        {
+            await Get1Lot(1, false);
+        }
+
+        [Test]
+        public async void Get1LotByProtoBuf()
+        {
+            await Get1Lot(1, true);
         }
 
         [Test]
         public async void Get1Lot100TimesByJson()
         {
-            // Start OWIN host 
-            using (WebApp.Start<Startup>(url: baseAddress))
-            {
-                // Create HttpCient and make a request to api/values 
-                HttpClient client = new HttpClient();
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/x-json"));
-                for (var i = 0; i < 100; i++)
-                {
-                    await Get1Lot(client,false);
-                }
-
-            }
+            await Get1Lot(100, false);
         }
+
         [Test]
         public async void Get1Lot100TimesByProtoBuf()
         {
-            // Start OWIN host 
-            using (WebApp.Start<Startup>(url: baseAddress))
-            {
-                // Create HttpCient and make a request to api/values 
-                HttpClient client = new HttpClient();
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/x-protobuf"));
-                for (var i = 0; i < 100; i++)
-                {
-                    await Get1Lot(client, true);
-                }
-
-            }
+            await Get1Lot(100, true);
         }
     }
 }
