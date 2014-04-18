@@ -22,6 +22,7 @@ namespace LotService
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
+            config.MapHttpAttributeRoutes();
             config.Formatters.Add(new ProtoBufFormatter());
             appBuilder.UseWebApi(config);
         }
