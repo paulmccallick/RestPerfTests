@@ -131,7 +131,7 @@ namespace LotServiceTests
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/x-json"));
                 for (var i = 0; i < 100; i++)
                 {
-                    await Get1Lot(client, true);
+                    await Get1Lot(client,false);
                 }
 
             }
