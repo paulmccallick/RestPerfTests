@@ -128,6 +128,23 @@ namespace LotServiceTests
                 // Create HttpCient and make a request to api/values 
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/x-json"));
+                for (var i = 0; i < 100; i++)
+                {
+                    await Get1Lot(client, true);
+                }
+
+            }
+        }
+        [Test]
+        public async void Get1Lot100TimesByProtoBuf()
+        {
+            // Start OWIN host 
+            using (WebApp.Start<Startup>(url: baseAddress))
+            {
+                // Create HttpCient and make a request to api/values 
+                HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/x-protobuf"));
                 for (var i = 0; i < 100; i++)
                 {
