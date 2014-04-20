@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
-using System.Runtime.Serialization;
-using System.Text;
 using System.Threading.Tasks;
 using LotContracts;
 using LotService;
@@ -15,37 +13,11 @@ using WebApiContrib.Formatting;
 
 namespace LotServiceTests
 {
-    [TestFixture]
-    public class LotSpeedTests
+    public class TestHelpers
     {
-        const string  baseAddress = "http://localhost:9000/";
-        [Test]
-        public async void Get1000LotsByJson()
-        {
-            await GetPortfolioLots(1, false);
-        }
+        private const string baseAddress = "http://localhost:9000/";
 
-        [Test]
-        public async void Get1000Lots100TimesByJson()
-        {
-            await GetPortfolioLots(100, false);
-        }
-
-        [Test]
-        public async void Get1000LotsByProtobuf()
-        {
-
-            await GetPortfolioLots(1, true);
-        }
-
-        [Test]
-        public async void Get1000Lots100TimesByProtobuf()
-        {
-
-            await GetPortfolioLots(100, true);
-        }
-
-        private static async Task GetPortfolioLots(int numberOfTimesToRepeat, bool useProtoBuf)
+        public static async Task GetPortfolioLots(int numberOfTimesToRepeat, bool useProtoBuf)
         {
             // Start OWIN host 
             using (WebApp.Start<Startup>(url: baseAddress))
@@ -70,18 +42,18 @@ namespace LotServiceTests
             var start = DateTime.Now;
             var response = client.GetAsync(baseAddress + "portfolio/1/lots").Result;
 
-            var formatters = new List<System.Net.Http.Formatting.MediaTypeFormatter>();
+            var formatters = new List<MediaTypeFormatter>();
             if (useProtoBuf)
                 formatters.Add(new ProtoBufFormatter());
             else
-                formatters.Add(new System.Net.Http.Formatting.JsonMediaTypeFormatter());
+                formatters.Add(new JsonMediaTypeFormatter());
 
             IEnumerable<Lot> lots = await response.Content.ReadAsAsync<IEnumerable<Lot>>(formatters);
             Console.WriteLine(String.Format("time to get lots: {0}", (DateTime.Now - start).TotalMilliseconds));
             Assert.That(lots.ToList().Count, Is.EqualTo(1000));
         }
 
-        private static async Task Get1Lot(int numberOfTimesToRepeat, bool useProtoBuf = false)
+        public static async Task Get1Lot(int numberOfTimesToRepeat, bool useProtoBuf = false)
         {
             // Start OWIN host 
             using (WebApp.Start<Startup>(url: baseAddress))
@@ -98,11 +70,11 @@ namespace LotServiceTests
                     var start = DateTime.Now;
                     var response = client.GetAsync(baseAddress + "lot/1").Result;
 
-                    var formatters = new List<System.Net.Http.Formatting.MediaTypeFormatter>();
+                    var formatters = new List<MediaTypeFormatter>();
                     if (useProtoBuf)
                         formatters.Add(new ProtoBufFormatter());
                     else
-                        formatters.Add(new System.Net.Http.Formatting.JsonMediaTypeFormatter());
+                        formatters.Add(new JsonMediaTypeFormatter());
 
                     Lot lot = await response.Content.ReadAsAsync<Lot>(formatters);
                     Console.WriteLine(String.Format("time to get lot: {0}", (DateTime.Now - start).TotalMilliseconds));
@@ -111,30 +83,6 @@ namespace LotServiceTests
 
             }
 
-        }
-
-        [Test]
-        public async void Get1LotByJson()
-        {
-            await Get1Lot(1, false);
-        }
-
-        [Test]
-        public async void Get1LotByProtoBuf()
-        {
-            await Get1Lot(1, true);
-        }
-
-        [Test]
-        public async void Get1Lot100TimesByJson()
-        {
-            await Get1Lot(100, false);
-        }
-
-        [Test]
-        public async void Get1Lot100TimesByProtoBuf()
-        {
-            await Get1Lot(100, true);
         }
     }
 }

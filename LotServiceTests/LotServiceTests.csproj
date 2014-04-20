@@ -77,8 +77,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LotSpeedTests.cs" />
+    <Compile Include="CouchBaseLotSpeedTests.cs" />
+    <Compile Include="InMemeoryLotSpeedTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestHelpers.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

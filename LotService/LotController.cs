@@ -10,11 +10,16 @@ namespace LotService
 {
     public class LotController: ApiController
     {
+        private readonly LotRepository _repository;
 
+        public LotController()
+        {
+            _repository = new LotRepository();
+        }
         [Route("portfolio/{portfolioId}/lots")]
         public IEnumerable<Lot> GetLotsById(int portfolioId)
         {
-            var lots = Enumerable.Range(1, 1000).Select(i => new Lot {LotId = i,PortId = portfolioId});
+            var lots = _repository.GetLots();
             return lots;
         }
 
