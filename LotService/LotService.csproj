@@ -82,6 +82,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CouchBaseHelper.cs" />
     <Compile Include="CouchBaseManager.cs" />
     <Compile Include="LotController.cs" />
     <Compile Include="LotRepository.cs" />

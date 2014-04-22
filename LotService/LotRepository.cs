@@ -15,14 +15,20 @@ namespace LotService
     public class LotRepository
 
     {
-        private const string lot_key = "port_id_1_lots";
+        private const string lots_key = "port_id_1_lots";
+        private const string lot_key = "lot_id_i_lot";
         private static bool _lotsStashed = false;
+        private readonly CouchBaseHelper<Lot> _lotHelper;
+        private readonly CouchBaseHelper<IEnumerable<Lot>> _lotCollectionHelper; 
 
         public LotRepository()
         {
             if (UseCouch)
             {
+                _lotHelper = new CouchBaseHelper<Lot>();
+                _lotCollectionHelper = new CouchBaseHelper<IEnumerable<Lot>>();
                 PrepCache();
+
             }
         }
 
@@ -33,7 +39,9 @@ namespace LotService
             if (!_lotsStashed)
             {
                 var lots = Enumerable.Range(1, 1000).Select(i => new Lot {LotId = i, PortId = 1});
-                StoreInCache(StoreMode.Set, lot_key, lots);
+                _lotCollectionHelper.StoreInCache(StoreMode.Set, lots_key, lots);
+                var lot = lots.First();
+                _lotHelper.StoreInCache(StoreMode.Set,lot_key,lot);
                 _lotsStashed = true;
             }
         }
@@ -41,45 +49,19 @@ namespace LotService
         public IEnumerable<Lot> GetLots()
         {   
             if(UseCouch)
-                return GetFromCache(lot_key);
-            else
-                return Enumerable.Range(1, 1000).Select(i => new Lot { LotId = i, PortId = 1 });
+                return _lotCollectionHelper.GetFromCache(lots_key);
+            return Enumerable.Range(1, 1000).Select(i => new Lot { LotId = i, PortId = 1 });
         }
 
-        private IEnumerable<Lot> GetFromCache(string cacheKey)
+        public Lot GetLot()
         {
-            var client = CouchbaseManager.Instance;
-            var bytes = client.Get<byte[]>(cacheKey);
-
-            if (bytes == null)
-                return null;
-            using (var stream = new MemoryStream(bytes))
-            {
-                return Serializer.Deserialize<IEnumerable<Lot>>(stream);
-            }
+            if (UseCouch)
+                return _lotHelper.GetFromCache(lot_key);
+            return new Lot {LotId = 1, PortId = 1};
         }
 
-        private void StoreInCache(StoreMode storeMode, string key, IEnumerable<Lot> entity)
-        {
-            if (entity == null)
-                return;
-            using (var stream = new MemoryStream())
-            {
-                var client = CouchbaseManager.Instance;
-                Serializer.Serialize(stream, entity);
-                var bytes = stream.ToArray();
-                if (client.Store(storeMode, key, bytes))
-                    return;
-                // If the store failed, try again with ExecuteStore to get info on the failure
-                var result = client.ExecuteStore(storeMode, key, bytes);
-                const string messageFormat = "Failed to store key {0}:\n{1}";
-                var message = string.Format(messageFormat, key, result.Message);
-                if (result.Exception == null)
-                    throw new ApplicationException(message);
-                else
-                    throw new ApplicationException(message, result.Exception);
-            }
-        }
+
+
 
     }
 }

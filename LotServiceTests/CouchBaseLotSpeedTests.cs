@@ -19,7 +19,7 @@ namespace LotServiceTests
         }
 
         [Test]
-        public async void Get1000Lots100TimesViaHttpWithCouchbaseDataStore()
+        public async void Get1000Lots100TimesViaHttpWithCouchbase()
         {
             await TestHelpers.GetPortfolioLots(100, true);
         }
@@ -37,6 +37,27 @@ namespace LotServiceTests
                 Console.WriteLine(String.Format("time to get lots: {0}", (DateTime.Now - start).TotalMilliseconds));
             }
             
+        }
+
+        [Test]
+        public async void Get1Lot100TimesViaHttpWithCouchbase()
+        {
+            await TestHelpers.Get1Lot(100,true);
+        }
+
+        [Test]
+        public void Get1Lot100TimesViaCouchbase()
+        {
+            LotRepository repo;
+            Lot lot;
+            for (int i = 0; i < 100; i++)
+            {
+                var start = DateTime.Now;
+                repo = new LotRepository();
+                lot = repo.GetLot();
+                Console.WriteLine(String.Format("time to get lots: {0}", (DateTime.Now - start).TotalMilliseconds));
+            }
+
         }
 
 
