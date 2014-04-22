@@ -24,12 +24,7 @@ namespace LotServiceTests
             LotRepository.UseCouch = false;
         }
 
-        [Test]
-        public async void Get1000LotsByJson()
-        {
-            
-            await TestHelpers.GetPortfolioLots(1, false);
-        }
+
 
         [Test]
         public async void Get1000Lots100TimesByJson()
@@ -38,29 +33,12 @@ namespace LotServiceTests
             await TestHelpers.GetPortfolioLots(100, false);
         }
 
-        [Test]
-        public async void Get1000LotsByProtobuf()
-        {
 
-            await TestHelpers.GetPortfolioLots(1, true);
-        }
 
         [Test]
         public async void Get1000Lots100TimesByProtobuf()
         {
             await TestHelpers.GetPortfolioLots(100, true);
-        }
-
-        [Test]
-        public async void Get1LotByJson()
-        {
-            await TestHelpers.Get1Lot(1, false);
-        }
-
-        [Test]
-        public async void Get1LotByProtoBuf()
-        {
-            await TestHelpers.Get1Lot(1, true);
         }
 
         [Test]
